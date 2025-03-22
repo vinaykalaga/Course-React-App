@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import apiClient from "../api/apiClient";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await apiClient.post("/auth/login", { username, password });
       login(res.data.token);
-      window.location.href = "/courses";
+      navigate("/courses"); // ✅ Redirect after login
     } catch (err) {
       alert("Login failed");
     }
