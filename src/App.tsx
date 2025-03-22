@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import CourseDetail from "./pages/CourseDetail";
+import EditCourse from "./pages/EditCourse";
 
 function App() {
   return (
@@ -31,6 +32,11 @@ function App() {
             <ProtectedRoute>
               <CourseDetail />
             </ProtectedRoute>
+          } />
+      <Route path="/edit-course/:id" element={
+          <ProtectedRoute>
+          <EditCourse />
+          </ProtectedRoute>
           } />
       </Routes>
     </Router>

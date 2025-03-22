@@ -1,29 +1,87 @@
 import { useState } from "react";
 import apiClient from "../api/apiClient";
+import { useNavigate } from "react-router-dom";
 
 export default function AddCourse() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    instructor: "",
+    level: "",
+    durationWeeks: ""
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await apiClient.post("/courses/addCourse", { title, description });
-      alert("Course added!");
-    } catch (err) {
-      alert("Failed to add course.");
-    }
+    apiClient.post("/courses/addCourse", {
+      ...form,
+      durationWeeks: parseInt(form.durationWeeks)
+    })
+    .then(() => {
+      alert("Course added ✅");
+      navigate("/courses"); // ✅ Uses react-router instead of full reload
+    })
+    .catch(() => alert("Error adding course ❌"));
   };
 
   return (
-    <div className="p-8 max-w-lg mx-auto">
-      <h2 className="text-xl font-bold mb-4">Add New Course</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input type="text" placeholder="Title" value={title} onChange={e => setTitle(e.target.value)}
-               className="w-full border p-2 rounded" required />
-        <textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)}
-                  className="w-full border p-2 rounded" required />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+    <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded shadow space-y-4">
+      <h2 className="text-2xl font-semibold">Add New Course</h2>
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <input
+          name="title"
+          value={form.title}
+          onChange={handleChange}
+          placeholder="Title"
+          required
+          className="w-full p-2 border rounded"
+        />
+        <input
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          placeholder="Description"
+          required
+          className="w-full p-2 border rounded"
+        />
+        <input
+          name="instructor"
+          value={form.instructor}
+          onChange={handleChange}
+          placeholder="Instructor"
+          required
+          className="w-full p-2 border rounded"
+        />
+        <select
+          name="level"
+          value={form.level}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        >
+          <option value="">Select Level</option>
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+        </select>
+        <input
+          type="number"
+          name="durationWeeks"
+          value={form.durationWeeks}
+          onChange={handleChange}
+          placeholder="Duration in Weeks"
+          required
+          className="w-full p-2 border rounded"
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
           Add Course
         </button>
       </form>

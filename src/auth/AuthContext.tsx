@@ -1,3 +1,4 @@
+// src/auth/AuthContext.tsx
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 type AuthContextType = {
@@ -12,8 +13,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("token");
-    if (stored) setToken(stored);
+    const savedToken = localStorage.getItem("token");
+    if (savedToken) setToken(savedToken);
   }, []);
 
   const login = (newToken: string) => {
@@ -33,7 +34,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// ✅ THIS EXPORT is crucial — it's missing in your case
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within AuthProvider");
