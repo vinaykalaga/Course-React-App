@@ -1,26 +1,24 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import Navbar from "./components/Navbar";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CourseList from "./pages/CourseList";
 import AddCourse from "./pages/AddCourse";
-import ProtectedRoute from "./routes/ProtectedRoute";
+import PrivateRoute from "./auth/PrivateRoute";
+import { AuthProvider } from "./auth/AuthContext";
+import Navbar from "./components/Navbar";
 
-const App = () => {
+export default function App() {
   return (
     <AuthProvider>
-      <Router>
+      <BrowserRouter>
         <Navbar />
         <Routes>
-          <Route path="/" element={<CourseList />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/add-course" element={<ProtectedRoute><AddCourse /></ProtectedRoute>} />
+          <Route path="/courses" element={<PrivateRoute><CourseList /></PrivateRoute>} />
+          <Route path="/add-course" element={<PrivateRoute><AddCourse /></PrivateRoute>} />
         </Routes>
-      </Router>
+      </BrowserRouter>
     </AuthProvider>
   );
-};
-
-export default App;
+}
