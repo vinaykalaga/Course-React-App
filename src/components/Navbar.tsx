@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
 export default function Navbar() {
-  const { token, logout } = useAuth();
+  const { token, role, logout } = useAuth();
 
   return (
     <nav className="bg-white shadow-md">
@@ -13,9 +13,13 @@ export default function Navbar() {
           <Link to="/" className="text-gray-700 hover:text-blue-600">Home</Link>
           <Link to="/courses" className="text-gray-700 hover:text-blue-600">Courses</Link>
 
-          {token && (
-            <Link to="/add-course" className="text-gray-700 hover:text-blue-600">Add Course</Link>
-          )}
+
+
+            {token && role === "ROLE_INSTRUCTOR" && (
+              <Link to="/add-course" className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700">
+                Add Course
+              </Link>
+            )}
 
           {!token ? (
             <>
