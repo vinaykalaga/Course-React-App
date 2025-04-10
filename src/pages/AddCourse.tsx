@@ -1,88 +1,77 @@
+// src/pages/Register.tsx
 import { useState } from "react";
 import apiClient from "../api/apiClient";
 import { useNavigate } from "react-router-dom";
 
-export default function AddCourse() {
+export default function Register() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState(""); // 👈 Role selection
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    instructor: "",
-    level: "",
-    durationWeeks: ""
-  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    apiClient.post("/courses/addCourse", {
-      ...form,
-      durationWeeks: parseInt(form.durationWeeks)
-    })
-    .then(() => {
-      alert("Course added ✅");
-      navigate("/courses"); // ✅ Uses react-router instead of full reload
-    })
-    .catch(() => alert("Error adding course ❌"));
+    if (!role) {
+      alert("Please select a role before registering.");
+      return;
+    }
+
+    try {
+      await apiClient.post("/auth/register", {
+        username,
+        password,
+        roles: [{ authority: role }]
+      });
+      alert("Registered successfully. Please login.");
+      navigate("/login");
+    } catch (err) {
+      alert("Registration failed");
+    }
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded shadow space-y-4">
-      <h2 className="text-2xl font-semibold">Add New Course</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded-lg shadow-lg space-y-4 w-full max-w-md"
+      >
+        <h1 className="text-2xl font-bold text-center">Register</h1>
+
         <input
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Title"
+          type="text"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          placeholder="Username"
+          className="w-full border p-2 rounded"
           required
-          className="w-full p-2 border rounded"
         />
+
         <input
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Description"
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          placeholder="Password"
+          className="w-full border p-2 rounded"
           required
-          className="w-full p-2 border rounded"
         />
-        <input
-          name="instructor"
-          value={form.instructor}
-          onChange={handleChange}
-          placeholder="Instructor"
-          required
-          className="w-full p-2 border rounded"
-        />
+
+        {/* ✅ Role Dropdown */}
         <select
-          name="level"
-          value={form.level}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
+          value={role}
+          onChange={e => setRole(e.target.value)}
+          className="border p-2 rounded w-full"
           required
         >
-          <option value="">Select Level</option>
-          <option>Beginner</option>
-          <option>Intermediate</option>
-          <option>Advanced</option>
+          <option value="">Select Role</option>
+          <option value="ROLE_INSTRUCTOR">Instructor</option>
+          <option value="ROLE_LEARNER">Learner</option>
         </select>
-        <input
-          type="number"
-          name="durationWeeks"
-          value={form.durationWeeks}
-          onChange={handleChange}
-          placeholder="Duration in Weeks"
-          required
-          className="w-full p-2 border rounded"
-        />
+
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
         >
-          Add Course
+          Register
         </button>
       </form>
     </div>
