@@ -1,77 +1,101 @@
-// src/pages/Register.tsx
-import { useState } from "react";
+// src/pages/AddCourse.tsx
+import { useState, useEffect } from "react";
 import apiClient from "../api/apiClient";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
-export default function Register() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState(""); // 👈 Role selection
+export default function AddCourse() {
+  const { role } = useAuth();
   const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    instructor: "",
+    level: "",
+    durationWeeks: ""
+  });
+
+  // 🔐 Redirect if not Instructor
+  useEffect(() => {
+    if (role !== "ROLE_INSTRUCTOR") {
+      alert("Access denied. Only instructors can add courses.");
+      navigate("/courses");
+    }
+  }, [role]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!role) {
-      alert("Please select a role before registering.");
-      return;
-    }
-
     try {
-      await apiClient.post("/auth/register", {
-        username,
-        password,
-        roles: [{ authority: role }]
+      await apiClient.post("/courses/addCourse", {
+        ...form,
+        durationWeeks: parseInt(form.durationWeeks)
       });
-      alert("Registered successfully. Please login.");
-      navigate("/login");
+      alert("✅ Course added successfully!");
+      navigate("/courses");
     } catch (err) {
-      alert("Registration failed");
+      alert("❌ Failed to add course.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow-lg space-y-4 w-full max-w-md"
-      >
-        <h1 className="text-2xl font-bold text-center">Register</h1>
-
+    <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow space-y-4">
+      <h2 className="text-2xl font-semibold mb-4">Add New Course</h2>
+      <form onSubmit={handleSubmit} className="space-y-3">
         <input
-          type="text"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          placeholder="Username"
-          className="w-full border p-2 rounded"
+          name="title"
+          value={form.title}
+          onChange={handleChange}
+          placeholder="Course Title"
           required
+          className="w-full p-2 border rounded"
         />
-
         <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full border p-2 rounded"
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          placeholder="Description"
           required
+          className="w-full p-2 border rounded"
         />
-
-        {/* ✅ Role Dropdown */}
+        <input
+          name="instructor"
+          value={form.instructor}
+          onChange={handleChange}
+          placeholder="Instructor Name"
+          required
+          className="w-full p-2 border rounded"
+        />
         <select
-          value={role}
-          onChange={e => setRole(e.target.value)}
-          className="border p-2 rounded w-full"
+          name="level"
+          value={form.level}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
           required
         >
-          <option value="">Select Role</option>
-          <option value="ROLE_INSTRUCTOR">Instructor</option>
-          <option value="ROLE_LEARNER">Learner</option>
+          <option value="">Select Level</option>
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
         </select>
-
+        <input
+          type="number"
+          name="durationWeeks"
+          value={form.durationWeeks}
+          onChange={handleChange}
+          placeholder="Duration in Weeks"
+          required
+          className="w-full p-2 border rounded"
+        />
         <button
           type="submit"
-          className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
         >
-          Register
+          Add Course
         </button>
       </form>
     </div>

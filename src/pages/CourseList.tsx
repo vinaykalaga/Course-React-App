@@ -1,4 +1,4 @@
-// src/pages/CourseList.tsx
+// ✅ CourseList.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import apiClient from "../api/apiClient";
@@ -6,23 +6,31 @@ import { useAuth } from "../auth/AuthContext";
 
 export default function CourseList() {
   const [courses, setCourses] = useState([]);
-  const { role } = useAuth();
+  const { role, token } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    apiClient
-      .get("/courses/getCourse")
-      .then((res) => setCourses(res.data))
-      .catch((err) => console.error("Error fetching courses:", err));
+    apiClient.get("/courses/getCourse")
+      .then(res => setCourses(res.data))
+      .catch(err => console.error("Error fetching courses:", err));
   }, []);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this course?")) return;
     try {
       await apiClient.delete(`/courses/deleteCourse/${id}`);
-      setCourses((prev) => prev.filter((c) => c.id !== id));
+      setCourses(prev => prev.filter(c => c.id !== id));
     } catch (err) {
       alert("❌ Failed to delete course");
+    }
+  };
+
+  const handleEnroll = async (courseId: number) => {
+    try {
+      await apiClient.post(`/courses/enroll/${courseId}`);
+      alert("✅ Enrolled Successfully");
+    } catch (err) {
+      alert("❌ Enrollment Failed");
     }
   };
 
@@ -34,11 +42,7 @@ export default function CourseList() {
           <li key={course.id} className="bg-white shadow p-4 rounded">
             <h2 className="text-lg font-semibold">{course.title}</h2>
             <p className="text-gray-700">{course.description}</p>
-
-            <Link
-              to={`/courses/${course.id}`}
-              className="text-blue-500 hover:underline block mt-2"
-            >
+            <Link to={`/courses/${course.id}`} className="text-blue-500 hover:underline block mt-2">
               View Details
             </Link>
 
@@ -55,6 +59,17 @@ export default function CourseList() {
                   className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                 >
                   Delete
+                </button>
+              </div>
+            )}
+
+            {role === "ROLE_LEARNER" && (
+              <div className="mt-3">
+                <button
+                  onClick={() => handleEnroll(course.id)}
+                  className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                >
+                  Enroll
                 </button>
               </div>
             )}
