@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 type AuthContextType = {
   token: string | null;
   role: string | null;
+  username: string | null;
   login: (token: string) => void;
   logout: () => void;
 };
@@ -13,6 +14,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
   // ✅ Decode token to get role
   const extractRole = (token: string) => {
@@ -20,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const decoded: any = jwtDecode(token);
       const authorities = decoded?.authorities;
       if (authorities && authorities.length > 0) {
+          setUsername(decoded?.sub)
         setRole(authorities[0]); // take first role
       }
     } catch (e) {
@@ -45,10 +48,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("token");
     setToken(null);
     setRole(null);
+    setUsername(null);
   };
 
   return (
-    <AuthContext.Provider value={{ token, role, login, logout }}>
+    <AuthContext.Provider value={{ token, role, username, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
