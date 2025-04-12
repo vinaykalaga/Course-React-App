@@ -9,7 +9,7 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import CourseDetail from "./pages/CourseDetail";
 import EditCourse from "./pages/EditCourse";
 import MyCourses from "./pages/MyCourses";
-
+import InstructorDashboard from "./pages/InstructorDashboard";
 
 function App() {
   return (
@@ -20,28 +20,51 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route path="/courses" element={
-          <ProtectedRoute>
-            <CourseList />
-          </ProtectedRoute>
-        } />
-        <Route path="/add-course" element={
-          <ProtectedRoute>
-            <AddCourse />
-          </ProtectedRoute>
-        } />
-        <Route path="/courses/:id" element={
+        <Route
+          path="/courses"
+          element={
+            <ProtectedRoute>
+              <CourseList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-course"
+          element={
+            <ProtectedRoute>
+              <AddCourse />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/courses/:id"
+          element={
             <ProtectedRoute>
               <CourseDetail />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-course/:id"
+          element={
+            <ProtectedRoute>
+              <EditCourse />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-courses"
+          element={
+            <ProtectedRoute>
+              <MyCourses />
+            </ProtectedRoute>
+          }
+        />
+         <Route path="/instructor/dashboard" element={
+            <ProtectedRoute>
+              <InstructorDashboard />
+            </ProtectedRoute>
           } />
-      <Route path="/edit-course/:id" element={
-          <ProtectedRoute>
-          <EditCourse />
-          </ProtectedRoute>
-          } />
-      <Route path="/my-courses" element={
-          <ProtectedRoute><MyCourses /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

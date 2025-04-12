@@ -29,6 +29,11 @@ export default function Navbar() {
               Add Course
             </Link>
           )}
+        {role === "ROLE_INSTRUCTOR" && (
+              <Link to="/instructor/dashboard" className="text-gray-700 hover:text-blue-600">
+                Dashboard
+              </Link>
+            )}
 
           {/* Learner-only link */}
           {token && role === "ROLE_LEARNER" && (

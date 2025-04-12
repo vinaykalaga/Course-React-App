@@ -13,19 +13,25 @@ export default function CourseDetail() {
   useEffect(() => {
     if (!id) return;
 
+    // ✅ Load course details
     apiClient.get(`/courses/getCourse/${id}`)
       .then(res => setCourse(res.data))
       .catch(err => console.error("Error loading course", err));
 
-    apiClient.get(`/courses/status/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    // ✅ Only learners check enrollment/completion
+    if (role === "ROLE_LEARNER") {
+      apiClient.get(`/courses/status/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       .then(res => {
         setEnrolled(true);
         setCompleted(res.data.completed);
       })
-      .catch(() => setEnrolled(false));
-  }, [id, token]);
+      .catch(() => {
+        setEnrolled(false);
+      });
+    }
+  }, [id, token, role]);
 
   const handleEnroll = async () => {
     try {
@@ -50,7 +56,9 @@ export default function CourseDetail() {
     }
   };
 
-  if (!course) return <div className="text-center mt-8 text-gray-600">Loading course...</div>;
+  if (!course) {
+    return <div className="text-center mt-8 text-gray-600">Loading course...</div>;
+  }
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
