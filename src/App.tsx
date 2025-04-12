@@ -8,6 +8,8 @@ import Navbar from "./components/Navbar";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import CourseDetail from "./pages/CourseDetail";
 import EditCourse from "./pages/EditCourse";
+import MyCourses from "./pages/MyCourses";
+
 
 function App() {
   return (
@@ -38,6 +40,8 @@ function App() {
           <EditCourse />
           </ProtectedRoute>
           } />
+      <Route path="/my-courses" element={
+          <ProtectedRoute><MyCourses /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

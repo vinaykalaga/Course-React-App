@@ -21,6 +21,10 @@ export default function Navbar() {
               </Link>
             )}
 
+           {role === "ROLE_LEARNER" && (
+            <Link to="/my-courses" className="hover:text-blue-600">My Courses</Link>
+            )}
+
           {!token ? (
             <>
               <Link to="/login" className="text-gray-700 hover:text-blue-600">Login</Link>
