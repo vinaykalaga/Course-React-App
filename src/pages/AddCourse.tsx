@@ -1,101 +1,89 @@
 // src/pages/AddCourse.tsx
-import { useState, useEffect } from "react";
-import apiClient from "../api/apiClient";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
+import apiClient from "../api/apiClient";
+import ReactQuill from "react-quill";
+import 'react-quill/dist/quill.snow.css';
 
 export default function AddCourse() {
-  const { role } = useAuth();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [content, setContent] = useState("");
+  const [level, setLevel] = useState("");
+  const [durationWeeks, setDurationWeeks] = useState(4);
   const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    instructor: "",
-    level: "",
-    durationWeeks: ""
-  });
-
-  // 🔐 Redirect if not Instructor
-  useEffect(() => {
-    if (role !== "ROLE_INSTRUCTOR") {
-      alert("Access denied. Only instructors can add courses.");
-      navigate("/courses");
-    }
-  }, [role]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await apiClient.post("/courses/addCourse", {
-        ...form,
-        durationWeeks: parseInt(form.durationWeeks)
+        title,
+        description,
+        content,
+        level,
+        durationWeeks,
       });
       alert("✅ Course added successfully!");
       navigate("/courses");
-    } catch (err) {
+    } catch {
       alert("❌ Failed to add course.");
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow space-y-4">
-      <h2 className="text-2xl font-semibold mb-4">Add New Course</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded space-y-6">
+      <h2 className="text-2xl font-bold text-blue-700">📚 Create a New Course</h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          name="title"
-          value={form.title}
-          onChange={handleChange}
+          type="text"
           placeholder="Course Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full border p-2 rounded"
           required
-          className="w-full p-2 border rounded"
         />
-        <input
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Description"
+
+        <textarea
+          placeholder="Short Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full border p-2 rounded"
           required
-          className="w-full p-2 border rounded"
         />
-        <input
-          name="instructor"
-          value={form.instructor}
-          onChange={handleChange}
-          placeholder="Instructor Name"
-          required
-          className="w-full p-2 border rounded"
-        />
+
+        <div>
+          <label className="font-semibold block mb-1">📖 Add Learning Content</label>
+          <ReactQuill theme="snow" value={content} onChange={setContent} />
+        </div>
+
         <select
-          name="level"
-          value={form.level}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          className="w-full border p-2 rounded"
           required
         >
           <option value="">Select Level</option>
-          <option>Beginner</option>
-          <option>Intermediate</option>
-          <option>Advanced</option>
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
         </select>
+
         <input
           type="number"
-          name="durationWeeks"
-          value={form.durationWeeks}
-          onChange={handleChange}
-          placeholder="Duration in Weeks"
+          min={1}
+          value={durationWeeks}
+          onChange={(e) => setDurationWeeks(parseInt(e.target.value))}
+          className="w-full border p-2 rounded"
+          placeholder="Duration (weeks)"
           required
-          className="w-full p-2 border rounded"
         />
+
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded"
         >
-          Add Course
+          ➕ Add Course
         </button>
       </form>
     </div>
