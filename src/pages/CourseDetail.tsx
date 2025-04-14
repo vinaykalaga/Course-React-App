@@ -1,4 +1,3 @@
-// src/pages/CourseDetail.tsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import apiClient from "../api/apiClient";
@@ -14,22 +13,25 @@ export default function CourseDetail() {
   useEffect(() => {
     if (!id) return;
 
+    // ✅ Load course details
     apiClient.get(`/courses/getCourse/${id}`)
       .then(res => setCourse(res.data))
       .catch(err => console.error("Error loading course", err));
 
-    // ✅ Check enrollment status
-    apiClient.get(`/courses/status/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(res => {
-      setEnrolled(true);
-      setCompleted(res.data.completed);
-    })
-    .catch(() => {
-      setEnrolled(false);
-    });
-  }, [id, token]);
+    // ✅ Only learners check enrollment/completion
+    if (role === "ROLE_LEARNER") {
+      apiClient.get(`/courses/status/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => {
+        setEnrolled(true);
+        setCompleted(res.data.completed);
+      })
+      .catch(() => {
+        setEnrolled(false);
+      });
+    }
+  }, [id, token, role]);
 
   const handleEnroll = async () => {
     try {
@@ -54,7 +56,9 @@ export default function CourseDetail() {
     }
   };
 
-  if (!course) return <div className="text-center mt-8 text-gray-600">Loading course...</div>;
+  if (!course) {
+    return <div className="text-center mt-8 text-gray-600">Loading course...</div>;
+  }
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
@@ -64,16 +68,17 @@ export default function CourseDetail() {
       <p className="text-sm text-gray-500">Level: {course.level}</p>
       <p className="text-sm text-gray-500 mb-4">Duration: {course.durationWeeks} weeks</p>
 
+      {/* ✅ Content Viewer */}
+      <div className="mt-6 prose max-w-none" dangerouslySetInnerHTML={{ __html: course.content || "<p>No content provided yet.</p>" }} />
+
       {role === "ROLE_LEARNER" && (
         <div className="mt-6">
           {enrolled ? (
             completed ? (
-              <span className="text-green-600 font-semibold text-lg">🎓 Course Completed!
-              </span>
+              <span className="text-green-600 font-semibold text-lg">🎓 Course Completed!</span>
             ) : (
               <>
-                <div className="text-blue-600 font-medium">🎉 You are enrolled
-                </div>
+                <div className="text-blue-600 font-medium">🎉 You are enrolled</div>
                 <button
                   onClick={handleMarkCompleted}
                   className="mt-3 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
